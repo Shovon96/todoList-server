@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 require("dotenv").config();
 const port = process.env.PORT || 5000;
 
@@ -9,7 +10,6 @@ app.use(
     origin: [
       "http://localhost:5173",
     ],
-    // credentials: true,
   })
 );
 app.use(express.json());
@@ -32,7 +32,7 @@ async function run() {
     //     const result = await taskCollection.find().toArray();
     //     res.send(result);
     //   });
-    
+
     //get all the task
     app.get("/tasks", async (req, res) => {
       const email = req.query.email;
@@ -48,6 +48,20 @@ async function run() {
     app.post("/task", async (req, res) => {
       const data = req.body;
       const result = await taskCollection.insertOne(data);
+      res.send(result);
+    });
+
+    // change status
+    app.put("/status", async (req, res) => {
+      const id = req.query.id;
+      const data = req.body;
+      const query = { _id: new ObjectId(id) };
+      const updatedDoc = {
+        $set: {
+          status: data.status,
+        },
+      };
+      const result = await taskCollection.updateOne(query, updatedDoc);
       res.send(result);
     });
 
