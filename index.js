@@ -1,7 +1,9 @@
 const express = require("express");
 const cors = require("cors");
-const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 require("dotenv").config();
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
+const jwt = require("jsonwebtoken");
+const cookieParser = require("cookie-parser");
 const port = process.env.PORT || 5000;
 
 const app = express();
@@ -13,6 +15,7 @@ app.use(
   })
 );
 app.use(express.json());
+app.use(cookieParser());
 
 // const uri = `mongodb+srv://${process.env.USER}:${process.env.PASSWORD}@cluster0.5q3e1dy.mongodb.net/?retryWrites=true&w=majority`;
 const uri = `mongodb+srv://${process.env.USER}:${process.env.PASSWORD}@cluster0.riywk8u.mongodb.net/?retryWrites=true&w=majority`;
@@ -28,11 +31,6 @@ async function run() {
   try {
     const taskCollection = client.db("taskify").collection("alltasks");
 
-    // app.get('/tasks', async (req, res) => {
-    //     const result = await taskCollection.find().toArray();
-    //     res.send(result);
-    //   });
-
     //get all the task
     app.get("/tasks", async (req, res) => {
       const email = req.query.email;
@@ -43,7 +41,7 @@ async function run() {
         .toArray();
       res.send(result);
     });
-
+    
     // create task
     app.post("/task", async (req, res) => {
       const data = req.body;
@@ -64,12 +62,20 @@ async function run() {
       const result = await taskCollection.updateOne(query, updatedDoc);
       res.send(result);
     });
-
+    
     // delete task
     app.delete("/delete", async (req, res) => {
       const id = req.query.id;
       const filter = { _id: new ObjectId(id) };
       const result = await taskCollection.deleteOne(filter);
+      res.send(result);
+    });
+
+    // get single data
+    app.get("/task", async (req, res) => {
+      const id = req.query.id;
+      const filter = { _id: new ObjectId(id) };
+      const result = taskCollection.findOne(filter);
       res.send(result);
     });
 
@@ -101,7 +107,6 @@ async function run() {
         })
         .send({ success: true });
     });
-
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
     );
