@@ -91,6 +91,17 @@ async function run() {
       res.send(result);
     });
 
+    // handle logout
+    app.post("/logout", async (req, res) => {
+      res
+        .clearCookie("token", {
+          httpOnly: true,
+          secure: true,
+          sameSite: "none",
+        })
+        .send({ success: true });
+    });
+
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
     );
