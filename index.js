@@ -73,6 +73,24 @@ async function run() {
       res.send(result);
     });
 
+    // update task
+    app.put("/update", async (req, res) => {
+      const id = req.query.id;
+      const filter = { _id: new ObjectId(id) };
+      const data = req.body;
+      const updatedDoc = {
+        $set: {
+          title: data.title,
+          description: data.description,
+          priority: data.priority,
+          deadline: data.deadline,
+          email: data.email,
+        },
+      };
+      const result = await taskCollection.updateOne(filter, updatedDoc);
+      res.send(result);
+    });
+
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
     );
